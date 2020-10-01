@@ -20,10 +20,9 @@ int main() {
 
     uint8_t* pixels = new uint8_t[image_width * image_height * CHANNEL_NUM];
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
     int index = 0;
     for (int j = image_height - 1; j >= 0; --j) {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
             auto r = double(i) / (image_width - 1);
             auto g = double(j) / (image_height - 1);
@@ -38,6 +37,8 @@ int main() {
             pixels[index++] = ib;
         }
     }
+
+    std::cerr << "\nDone.\n";
 
     stbi_write_png("image.png", image_width, image_height, CHANNEL_NUM, pixels, image_width * CHANNEL_NUM);
     delete[] pixels;
