@@ -20,7 +20,7 @@ color ray_color(const ray& r, const hittable& world, int depth) {
     if (depth <= 0)
         return color(0, 0, 0);
 
-    if (world.hit(r, 0, infinity, rec)) {
+    if (world.hit(r, 0.001, infinity, rec)) {
         point3 target = rec.p + rec.normal + random_in_unit_sphere();
         return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth-1);
     }
@@ -66,11 +66,19 @@ int main() {
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, world, max_depth);
             }
-            pixel_color /= samples_per_pixel;
+            auto r = pixel_color.x();
+            auto g = pixel_color.y();
+            auto b = pixel_color.z();
 
-            pixels[index++] = to_color(clamp(pixel_color.x(), 0.0, 0.999));
-            pixels[index++] = to_color(clamp(pixel_color.y(), 0.0, 0.999));
-            pixels[index++] = to_color(clamp(pixel_color.z(), 0.0, 0.999));
+            // Divide the color by the number of samples and gamma-correct for gamma=2.0.
+            auto scale = 1.0 / samples_per_pixel;
+            r = sqrt(scale * r);
+            g = sqrt(scale * g);
+            b = sqrt(scale * b);
+
+            pixels[index++] = to_color(clamp(r, 0.0, 0.999));
+            pixels[index++] = to_color(clamp(g, 0.0, 0.999));
+            pixels[index++] = to_color(clamp(b, 0.0, 0.999));
         }
     }
 
